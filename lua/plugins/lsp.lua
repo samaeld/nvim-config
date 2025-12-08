@@ -30,6 +30,7 @@ return {
             "mason-org/mason-lspconfig.nvim",
             "Saghen/blink.cmp",
             "benomahony/uv.nvim",
+            "folke/snacks.nvim",
         },
         opts = {
             servers = {
@@ -43,7 +44,7 @@ return {
                         { "gI", vim.lsp.buf.implementation, desc = "Goto Implementation" },
                         { "gy", vim.lsp.buf.type_definition, desc = "Goto T[y]pe Definition" },
                         { "gD", vim.lsp.buf.declaration, desc = "Goto Declaration" },
-                        { "K", function() return vim.lsp.buf.hover() end, desc = "Hover" },
+                        { "H", function() return vim.lsp.buf.hover() end, desc = "Hover" },
                         { "gK", function() return vim.lsp.buf.signature_help() end, desc = "Signature Help" },
                         { "<c-k>", function() return vim.lsp.buf.signature_help() end, mode = "i", desc = "Signature Help" },
                         { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action", mode = { "n", "x" } },
@@ -90,6 +91,8 @@ return {
                         "--pch-storage=memory",
                         "--cross-file-rename=true",
                         "--suggest-missing-includes",
+                        "--function-arg-placeholders",
+                        "--fallback-style=llvm",
                     },
                     init_options = {
                         usePlaceholders = true,
@@ -105,7 +108,9 @@ return {
                         },
                     },
                     setup = function(_, opts)
-                        require("clangd_extensions").setup(vim.tbl_deep_extend("force", {}, { server = opts }))
+                        require("clangd_extensions").setup(vim.tbl_deep_extend("force", {}, {
+                            server = opts,
+                        }))
                     end,
                 },
                 pyright = {
@@ -159,7 +164,7 @@ return {
                                 callSnippet = "Replace",
                             },
                             diagnostics = {
-                                globals = { "vim" },
+                                globals = { "vim", "Snacks" },
                                 disable = { "missing-fields" },
                             },
                         },
@@ -168,11 +173,12 @@ return {
                 stylua = {},
                 qmlls = {
                     cmd = qmlls_binary(),
-                    -- cmd = {
-                    --     "/home/samael/sendbox/python/signal_viewer/.venv/lib/python3.13/site-packages/PySide6/qmlls",
-                    -- },
                     filetypes = { "qml", "qmljs" },
                     root_markers = { ".git", ".qmlls.ini" },
+                },
+                bashls = {
+                    cmd = { "bash-language-server", "start" },
+                    filetypes = { "bash", "sh" },
                 },
             },
         },
@@ -186,7 +192,7 @@ return {
                     end
                     local server = opts.servers[client.name]
                     if type(server.on_attach) == "function" then
-                        server.on_attach(client, event)
+                        server.on_attach(client, event.buf)
                     end
                 end,
             })

@@ -202,6 +202,7 @@ return {
             scroll = { enabled = false },
             statuscolumn = { enabled = true },
             toggle = { enabled = true },
+            picker = { enabled = true },
         },
     },
     {
