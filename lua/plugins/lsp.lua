@@ -17,6 +17,13 @@ local function qmlls_binary()
     return { "qmlls" }
 end
 
+local function map_client_name(client_name)
+    if client_name == "rust-analyzer" then
+        return "rust_analyzer"
+    end
+    return client_name
+end
+
 return {
     {
         "p00f/clangd_extensions.nvim",
@@ -141,7 +148,24 @@ return {
                         end)
                     end,
                 },
-                rust_analyzer = {},
+                rust_analyzer = {
+                    -- stylua: ignore
+                    keys = {
+                        { "<leader>r", function() vim.cmd.RustLsp("run") end, desc = "Run" },
+                        { "<leader>me", function() vim.cmd.RustLsp("expandMacro") end, desc = "Expand Macro" },
+                    },
+                    settings = {
+                        ["rust-analyzer"] = {
+                            cargo = {
+                                features = "all",
+                            },
+                            single_file_support = false,
+                        },
+                    },
+                    on_attach = function(client, bufnr)
+                        vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+                    end,
+                },
                 cmake = {},
                 lua_ls = {
                     settings = {
@@ -180,6 +204,10 @@ return {
                     cmd = { "bash-language-server", "start" },
                     filetypes = { "bash", "sh" },
                 },
+                ts_ls = {},
+                jsonls = {},
+                kotlin_lsp = {},
+                svelte = {},
             },
         },
         config = function(_, opts)
@@ -190,20 +218,25 @@ return {
                     if not client then
                         return
                     end
-                    local server = opts.servers[client.name]
+
+                    local server = opts.servers[map_client_name(client.name)]
+                    if server == nil then
+                        vim.notify("No configuration found for " .. client.name, vim.log.levels.WARN)
+                        return
+                    end
+
+                    -- server specific keymaps
+                    if server.keys and type(server.keys) == "table" then
+                        for _, map in ipairs(server.keys) do
+                            vim.keymap.set(map.mode or "n", map[1], map[2], { silent = true, desc = map.desc or "" })
+                        end
+                    end
+
                     if type(server.on_attach) == "function" then
                         server.on_attach(client, event.buf)
                     end
                 end,
             })
-
-            for server, server_opts in pairs(opts.servers) do
-                if type(server_opts) == "table" and server_opts.keys then
-                    for _, map in ipairs(server_opts.keys) do
-                        vim.keymap.set(map.mode or "n", map[1], map[2], { silent = true, desc = map.desc or "" })
-                    end
-                end
-            end
 
             Snacks.util.lsp.on({ method = "textDocument/inlayHint" }, function(buffer)
                 vim.lsp.inlay_hint.enable(true, { bufnr = buffer })
@@ -219,6 +252,13 @@ return {
 
             if opts.servers["*"] then
                 vim.lsp.config("*", opts.servers["*"])
+                -- global keymaps
+                local keys = opts.servers["*"].keys
+                if keys and type(keys) == "table" then
+                    for _, map in ipairs(keys) do
+                        vim.keymap.set(map.mode or "n", map[1], map[2], { silent = true, desc = map.desc or "" })
+                    end
+                end
             end
 
             local configure = function(server)
