@@ -173,6 +173,8 @@ return {
             end, { desc = "[ ] Find existing buffers" })
             vim.keymap.set("n", "<leader>tk", builtin.git_commits, { desc = "Show git history" })
             vim.keymap.set("n", "<leader>k", builtin.git_bcommits, { desc = "Show git history for an open file" })
+            vim.keymap.set("n", "<leader>ck", builtin.git_bcommits_range, { desc = "Show git commit for current line" })
+            vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "Show git branches" })
 
             vim.keymap.set("n", "<leader>/", function()
                 builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
