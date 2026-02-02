@@ -12,9 +12,9 @@ return {
             -- lua
 
             -- TODO: configure mappings
-            vim.keymap.set('n', '<Leader>b', function()
+            vim.keymap.set("n", "<Leader>b", function()
                 dap.toggle_breakpoint()
-            end, { desc = 'DAP: toggle breakpoint' })
+            end, { desc = "DAP: toggle breakpoint" })
         end,
     },
     {
@@ -23,7 +23,7 @@ return {
         dependencies = { "mfussenegger/nvim-dap" },
         config = function()
             require("dap-python").setup("python")
-            require('dap-python').test_runner = 'pytest'
+            require("dap-python").test_runner = "pytest"
         end,
     },
     {
@@ -46,17 +46,17 @@ return {
                 layouts = {
                     {
                         elements = {
-                            { id = "scopes",      size = 0.33 },
+                            { id = "scopes", size = 0.33 },
                             { id = "breakpoints", size = 0.17 },
-                            { id = "stacks",      size = 0.25 },
-                            { id = "watches",     size = 0.25 },
+                            { id = "stacks", size = 0.25 },
+                            { id = "watches", size = 0.25 },
                         },
                         size = 0.33,
                         position = "right",
                     },
                     {
                         elements = {
-                            { id = "repl",    size = 0.45 },
+                            { id = "repl", size = 0.45 },
                             { id = "console", size = 0.55 },
                         },
                         size = 0.27,
@@ -65,7 +65,7 @@ return {
                 },
                 floating = {
                     max_height = 0.9,
-                    max_width = 0.5,             -- Floats will be treated as percentage of your screen.
+                    max_width = 0.5, -- Floats will be treated as percentage of your screen.
                     border = vim.g.border_chars, -- Border style. Can be 'single', 'double' or 'rounded'
                     mappings = {
                         close = { "q", "<Esc>" },
@@ -109,27 +109,27 @@ return {
         end,
     },
     {
-        'theHamsta/nvim-dap-virtual-text',
+        "theHamsta/nvim-dap-virtual-text",
     },
     {
-        'jedrzejboczar/nvim-dap-cortex-debug',
-        requires = 'mfussenegger/nvim-dap',
+        "jedrzejboczar/nvim-dap-cortex-debug",
+        requires = "mfussenegger/nvim-dap",
         config = function()
-            require('dap-cortex-debug').setup({
+            require("dap-cortex-debug").setup({
                 debug = true,
             })
-        end
+        end,
     },
     {
         "jay-babu/mason-nvim-dap.nvim",
         dependencies = {
             "mfussenegger/nvim-dap",
-            "williamboman/mason.nvim",
+            "mason-org/mason.nvim",
         },
         config = function()
             require("mason-nvim-dap").setup({
                 automatic_setup = true,
-                ensure_installed = { "python" }
+                ensure_installed = { "python" },
             })
             local keymap = vim.keymap
             keymap.set("v", "<leader>ds", "<cmd>lua require('dap-python').debug_selection()<cr>")
