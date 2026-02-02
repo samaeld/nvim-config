@@ -166,6 +166,17 @@ return {
                         vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
                     end,
                 },
+                gopls = {
+                    settings = {
+                        gopls = {
+                            analyses = {
+                                unusedparams = true,
+                            },
+                            staticcheck = true,
+                            gofumpt = true,
+                        },
+                    },
+                },
                 cmake = {},
                 lua_ls = {
                     settings = {
