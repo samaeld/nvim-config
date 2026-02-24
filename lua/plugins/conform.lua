@@ -109,6 +109,7 @@ return {
                     c = { "c_format" },
                     python = { "isort", "black" },
                     lua = { "stylua" },
+                    cmake = { "gersemi" },
                 },
                 formatters = {
                     cpp_format = {

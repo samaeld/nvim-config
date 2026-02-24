@@ -177,7 +177,17 @@ return {
                         },
                     },
                 },
-                cmake = {},
+                neocmake = {
+                    settings = {
+                        cmake = {
+                            lint = {
+                                style = {
+                                    indentation = 4,
+                                },
+                            },
+                        },
+                    },
+                },
                 lua_ls = {
                     settings = {
                         Lua = {
