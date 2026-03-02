@@ -178,6 +178,7 @@ return {
                     },
                 },
                 neocmake = {
+                    root_markers = { "CMakeLists.txt", ".git", "build", "cmake" },
                     settings = {
                         cmake = {
                             lint = {
