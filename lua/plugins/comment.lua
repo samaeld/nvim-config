@@ -5,5 +5,5 @@ return {
             require("Comment").setup({})
         end,
         lazy = false,
-    }
+    },
 }

@@ -37,7 +37,7 @@ end
 
 return {
     {
-        "stevearc/oil.nvim",
+        "barrettruth/canola.nvim",
         dependencies = { "nvim-tree/nvim-web-devicons" },
         config = function()
             require("oil").setup({
@@ -92,17 +92,17 @@ return {
     {
         "refractalize/oil-git-status.nvim",
         dependencies = {
-            "stevearc/oil.nvim",
+            "barrettruth/canola.nvim",
         },
         config = true,
     },
     {
         "benomahony/oil-git.nvim",
-        dependencies = { "stevearc/oil.nvim" },
+        dependencies = { "barrettruth/canola.nvim" },
     },
     {
         "JezerM/oil-lsp-diagnostics.nvim",
-        dependencies = { "stevearc/oil.nvim" },
+        dependencies = { "barrettruth/canola.nvim" },
         opts = {},
     },
 }

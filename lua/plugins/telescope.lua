@@ -114,6 +114,11 @@ return {
                         override_file_sorter = true,
                         case_mode = "smart_case",
                     },
+                    workspaces = {
+                        keep_insert = false,
+                        initial_mode = "normal",
+                        path_hl = "String",
+                    },
                 },
                 pickers = {
                     find_files = {
@@ -141,6 +146,7 @@ return {
             pcall(require("telescope").load_extension, "ui-select")
             pcall(require("telescope").load_extension, "live_grep_args")
             pcall(require("telescope").load_extension("fidget"))
+            pcall(require("telescope").load_extension("workspaces"))
 
             -- See `:help telescope.builtin`
             local builtin = require("telescope.builtin")
@@ -192,6 +198,8 @@ return {
             vim.keymap.set("n", "<leader>sn", function()
                 builtin.find_files({ cwd = vim.fn.stdpath("config") })
             end, { desc = "[S]earch [N]eovim files" })
+
+            vim.keymap.set("n", "<leader>p", "<cmd>Telescope workspaces<cr>", { desc = "[P]rojects" })
         end,
     },
 }

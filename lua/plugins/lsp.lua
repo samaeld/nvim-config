@@ -220,7 +220,36 @@ return {
                 qmlls = {
                     cmd = qmlls_binary(),
                     filetypes = { "qml", "qmljs" },
-                    root_markers = { ".git", ".qmlls.ini" },
+                    root_markers = { ".git", ".qmlls.ini", "qmlls.ini" },
+                    handlers = {
+                        ["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
+                            if result and result.diagnostics then
+                                result.diagnostics = vim.tbl_filter(function(d)
+                                    return not d.message:match("Unqualified access")
+                                end, result.diagnostics)
+                            end
+                            vim.lsp.handlers["textDocument/publishDiagnostics"](err, result, ctx, config)
+                        end,
+                    },
+                    on_attach = function(client, bufnr)
+                        vim.keymap.set("n", "gd", function()
+                            local word = vim.fn.expand("<cword>")
+                            local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+                            vim.lsp.buf_request_all(0, "textDocument/definition", params, function(results)
+                                local locations = {}
+                                for _, res in pairs(results) do
+                                    if res.result then
+                                        vim.list_extend(locations, type(res.result) == "table" and res.result or { res.result })
+                                    end
+                                end
+                                if #locations > 0 then
+                                    vim.lsp.util.jump_to_location(locations[1], client.offset_encoding)
+                                else
+                                    Snacks.picker.grep({ search = "class " .. word, include = "*.py" })
+                                end
+                            end)
+                        end, { buffer = bufnr, desc = "Goto Definition (Python fallback)" })
+                    end,
                 },
                 bashls = {
                     cmd = { "bash-language-server", "start" },

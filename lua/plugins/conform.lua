@@ -38,7 +38,8 @@ local function webkit_format_args()
             .. "NamespaceIndentation: None, "
             .. "SpaceAfterTemplateKeyword: false, "
             .. "SpaceBeforeCpp11BracedList: false, "
-            .. "PenaltyReturnTypeOnItsOwnLine: 999}",
+            .. "PenaltyReturnTypeOnItsOwnLine: 999, "
+            .. "SeparateDefinitionBlocks: Always}",
     }
 end
 
@@ -68,7 +69,8 @@ local function llvm_format_args()
             .. "NamespaceIndentation: None, "
             .. "SpaceAfterTemplateKeyword: false, "
             .. "SpaceBeforeCpp11BracedList: false, "
-            .. "PenaltyReturnTypeOnItsOwnLine: 999}",
+            .. "PenaltyReturnTypeOnItsOwnLine: 999, "
+            .. "SeparateDefinitionBlocks: Always}",
     }
 end
 
@@ -110,6 +112,8 @@ return {
                     python = { "isort", "black" },
                     lua = { "stylua" },
                     cmake = { "gersemi" },
+                    qml = { "qmlformat" },
+                    svelte = { "prettierd", "prettier", stop_after_first = true },
                 },
                 formatters = {
                     cpp_format = {
