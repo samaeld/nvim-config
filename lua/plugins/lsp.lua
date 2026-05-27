@@ -56,7 +56,7 @@ return {
                         { "<c-k>", function() return vim.lsp.buf.signature_help() end, mode = "i", desc = "Signature Help" },
                         { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action", mode = { "n", "x" } },
                         { "<leader>cc", vim.lsp.codelens.run, desc = "Run Codelens", mode = { "n", "x" } },
-                        { "<leader>cC", vim.lsp.codelens.refresh, desc = "Refresh & Display Codelens", mode = { "n" } },
+                        { "<leader>cC", function() vim.lsp.codelens.enable(true, { bufnr = vim.api.nvim_get_current_buf() }) end, desc = "Refresh & Display Codelens", mode = { "n" } },
                         { "<leader>cR", function() Snacks.rename.rename_file() end, desc = "Rename File", mode ={"n"} },
                         { "<leader>cr", vim.lsp.buf.rename, desc = "Rename" },
                         { "<leader>cA", vim.lsp.buf.code_action, desc = "Source Action" },
@@ -162,9 +162,7 @@ return {
                             single_file_support = false,
                         },
                     },
-                    on_attach = function(client, bufnr)
-                        vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-                    end,
+                    on_attach = function(client, bufnr) end,
                 },
                 gopls = {
                     settings = {
@@ -239,11 +237,14 @@ return {
                                 local locations = {}
                                 for _, res in pairs(results) do
                                     if res.result then
-                                        vim.list_extend(locations, type(res.result) == "table" and res.result or { res.result })
+                                        vim.list_extend(
+                                            locations,
+                                            type(res.result) == "table" and res.result or { res.result }
+                                        )
                                     end
                                 end
                                 if #locations > 0 then
-                                    vim.lsp.util.jump_to_location(locations[1], client.offset_encoding)
+                                    vim.lsp.util.show_document(locations[1], client.offset_encoding, { focus = true })
                                 else
                                     Snacks.picker.grep({ search = "class " .. word, include = "*.py" })
                                 end
@@ -294,12 +295,43 @@ return {
             end)
 
             Snacks.util.lsp.on({ method = "textDocument/codeLens" }, function(buffer)
-                vim.lsp.codelens.refresh()
+                vim.lsp.codelens.enable(true, { bufnr = buffer })
                 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
                     buffer = buffer,
-                    callback = vim.lsp.codelens.refresh,
+                    callback = function()
+                        vim.lsp.codelens.enable(true, { bufnr = buffer })
+                    end,
                 })
             end)
+
+            local _pending_hint_refresh = {}
+            local _orig_ih_handler = vim.lsp.handlers["textDocument/inlayHint"]
+            if _orig_ih_handler then
+                vim.lsp.handlers["textDocument/inlayHint"] = function(err, result, ctx, config)
+                    local ret = _orig_ih_handler(err, result, ctx, config)
+                    local bufnr = ctx.bufnr
+                    if bufnr and _pending_hint_refresh[bufnr] then
+                        _pending_hint_refresh[bufnr] = nil
+                        vim.schedule(function()
+                            if vim.api.nvim_buf_is_valid(bufnr) then
+                                vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+                            end
+                        end)
+                    end
+                    return ret
+                end
+            end
+
+            vim.api.nvim_create_autocmd("BufWritePre", {
+                group = vim.api.nvim_create_augroup("lsp-inlay-hint-write", { clear = true }),
+                callback = function(args)
+                    local bufnr = args.buf
+                    if vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }) then
+                        vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
+                        _pending_hint_refresh[bufnr] = true
+                    end
+                end,
+            })
 
             if opts.servers["*"] then
                 vim.lsp.config("*", opts.servers["*"])
