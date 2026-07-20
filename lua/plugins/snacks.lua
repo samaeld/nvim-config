@@ -145,7 +145,7 @@ local function get_header()
     local _headers = headers()
 
     local math = require("math")
-    math.randomseed(os.time())
+    math.randomseed(vim.uv.hrtime())
     local number = math.random(1, #_headers)
     return _headers[number]
 end
@@ -203,35 +203,39 @@ return {
             statuscolumn = { enabled = true },
             toggle = { enabled = true },
             picker = { enabled = true },
+            lazygit = { enabled = true },
+        },
+        keys = {
+            { "<leader>lg", function() Snacks.lazygit() end, desc = "LazyGit" },
         },
     },
-    {
-        "folke/noice.nvim",
-        config = function()
-            require("noice").setup({
-                -- add any options here
-                routes = {
-                    {
-                        filter = {
-                            event = "msg_show",
-                            any = {
-                                { find = "%d+L, %d+B" },
-                                { find = "; after #%d+" },
-                                { find = "; before #%d+" },
-                                { find = "%d fewer lines" },
-                                { find = "%d more lines" },
-                            },
-                        },
-                        opts = { skip = true },
-                    },
-                },
-            })
-        end,
-        dependencies = {
-            "MunifTanjim/nui.nvim",
-            "rcarriga/nvim-notify",
-        },
-    },
+    -- {
+    --     "folke/noice.nvim",
+    --     config = function()
+    --         require("noice").setup({
+    --             -- add any options here
+    --             routes = {
+    --                 {
+    --                     filter = {
+    --                         event = "msg_show",
+    --                         any = {
+    --                             { find = "%d+L, %d+B" },
+    --                             { find = "; after #%d+" },
+    --                             { find = "; before #%d+" },
+    --                             { find = "%d fewer lines" },
+    --                             { find = "%d more lines" },
+    --                         },
+    --                     },
+    --                     opts = { skip = true },
+    --                 },
+    --             },
+    --         })
+    --     end,
+    --     dependencies = {
+    --         "MunifTanjim/nui.nvim",
+    --         "rcarriga/nvim-notify",
+    --     },
+    -- },
     {
         "folke/todo-comments.nvim",
         keys = {

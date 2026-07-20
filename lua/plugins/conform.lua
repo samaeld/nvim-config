@@ -113,7 +113,10 @@ return {
                     lua = { "stylua" },
                     cmake = { "gersemi" },
                     qml = { "qmlformat" },
+                    go = { "goimports", "gofumpt" },
                     svelte = { "prettierd", "prettier", stop_after_first = true },
+                    typescript = { "prettierd", "prettier", stop_after_first = true },
+                    javascript = { "prettierd", "prettier", stop_after_first = true },
                 },
                 formatters = {
                     cpp_format = {

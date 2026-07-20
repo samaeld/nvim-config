@@ -1,19 +1,19 @@
 return {
     {
         "rbong/vim-flog",
-        cmd = { "Flog" }
+        cmd = { "Flog" },
     },
     {
         "lewis6991/gitsigns.nvim",
         config = function()
             local gitsigns = require("gitsigns")
-            gitsigns.setup {
+            gitsigns.setup({
                 signs = {
-                    add = { text = '+' },
-                    change = { text = '~' },
-                    delete = { text = '_' },
-                    topdelete = { text = '‾' },
-                    changedelete = { text = '~' },
+                    add = { text = "+" },
+                    change = { text = "~" },
+                    delete = { text = "_" },
+                    topdelete = { text = "‾" },
+                    changedelete = { text = "~" },
                 },
                 signcolumn = true,
                 numhl = false,
@@ -28,7 +28,7 @@ return {
                 current_line_blame_opts = {
                     virt_text = true,
                     virt_text_pos = "right_align", -- 'eol' | 'overlay' | 'right_align'
-                    delay = 100,
+                    delay = 300,
                     ignore_whitespace = false,
                 },
                 current_line_blame_formatter = "<author>, <author_time:%Y-%m-%d> - <summary>",
@@ -44,7 +44,7 @@ return {
                     row = 0,
                     col = 1,
                 },
-            }
+            })
         end,
     },
 }

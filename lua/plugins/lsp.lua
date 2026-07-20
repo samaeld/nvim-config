@@ -59,7 +59,6 @@ return {
                         { "<leader>cC", function() vim.lsp.codelens.enable(true, { bufnr = vim.api.nvim_get_current_buf() }) end, desc = "Refresh & Display Codelens", mode = { "n" } },
                         { "<leader>cR", function() Snacks.rename.rename_file() end, desc = "Rename File", mode ={"n"} },
                         { "<leader>cr", vim.lsp.buf.rename, desc = "Rename" },
-                        { "<leader>cA", vim.lsp.buf.code_action, desc = "Source Action" },
                         { "]]", function() Snacks.words.jump(vim.v.count1) end,
                         desc = "Next Reference", enabled = function() return Snacks.words.is_enabled() end },
                         { "[[", function() Snacks.words.jump(-vim.v.count1) end,
@@ -77,7 +76,6 @@ return {
                         "compile_flags.txt",
                         "configure.ac", -- AutoTools
                         "Makefile",
-                        "configure.ac",
                         "configure.in",
                         "config.h.in",
                         "meson.build",
@@ -106,7 +104,6 @@ return {
                         completeUnimported = true,
                         clangdFileStatus = true,
                     },
-                    on_attach = function(client, bufnr) end,
                     keys = {
                         {
                             "<leader>hs",
@@ -157,24 +154,28 @@ return {
                     settings = {
                         ["rust-analyzer"] = {
                             cargo = {
-                                features = "all",
+                                features = {},
                             },
                             single_file_support = false,
                         },
                     },
-                    on_attach = function(client, bufnr) end,
                 },
                 gopls = {
                     settings = {
                         gopls = {
                             analyses = {
                                 unusedparams = true,
+                                unusedwrite = true,
+                                nilness = true,
+                                useany = true,
+                                unusedvariable = true,
                             },
                             staticcheck = true,
                             gofumpt = true,
                         },
                     },
                 },
+                golangci_lint_ls = {},
                 neocmake = {
                     root_markers = { "CMakeLists.txt", ".git", "build", "cmake" },
                     settings = {
@@ -192,7 +193,6 @@ return {
                         Lua = {
                             workspace = {
                                 checkThirdParty = false,
-                                library = vim.api.nvim_get_runtime_file("", true),
                                 ignoreDir = {
                                     ".git",
                                     "node_modules",
@@ -214,7 +214,6 @@ return {
                         },
                     },
                 },
-                stylua = {},
                 qmlls = {
                     cmd = qmlls_binary(),
                     filetypes = { "qml", "qmljs" },
@@ -246,23 +245,74 @@ return {
                                 if #locations > 0 then
                                     vim.lsp.util.show_document(locations[1], client.offset_encoding, { focus = true })
                                 else
-                                    Snacks.picker.grep({ search = "class " .. word, include = "*.py" })
+                                    Snacks.picker.grep({
+                                        search = "class " .. word,
+                                        glob = { "*.hpp", "*.h", "*.cpp" },
+                                    })
                                 end
                             end)
-                        end, { buffer = bufnr, desc = "Goto Definition (Python fallback)" })
+                        end, { buffer = bufnr, desc = "Goto Definition (C++ fallback)" })
                     end,
                 },
                 bashls = {
                     cmd = { "bash-language-server", "start" },
                     filetypes = { "bash", "sh" },
                 },
-                ts_ls = {},
+                ts_ls = {
+                    settings = {
+                        typescript = {
+                            inlayHints = {
+                                includeInlayParameterNameHints = "all",
+                                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                                includeInlayFunctionParameterTypeHints = true,
+                                includeInlayVariableTypeHints = true,
+                                includeInlayPropertyDeclarationTypeHints = true,
+                                includeInlayFunctionLikeReturnTypeHints = true,
+                                includeInlayEnumMemberValueHints = true,
+                            },
+                        },
+                        javascript = {
+                            inlayHints = {
+                                includeInlayParameterNameHints = "all",
+                                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                                includeInlayFunctionParameterTypeHints = true,
+                                includeInlayVariableTypeHints = true,
+                                includeInlayPropertyDeclarationTypeHints = true,
+                                includeInlayFunctionLikeReturnTypeHints = true,
+                                includeInlayEnumMemberValueHints = true,
+                            },
+                        },
+                    },
+                },
                 jsonls = {},
                 kotlin_lsp = {},
                 svelte = {},
+                eslint = {
+                    on_attach = function(_, bufnr)
+                        vim.api.nvim_create_autocmd("BufWritePre", {
+                            buffer = bufnr,
+                            command = "LspEslintFixAll",
+                        })
+                    end,
+                },
             },
         },
         config = function(_, opts)
+            local function apply_keys(keys, extra_opts)
+                for _, map in ipairs(keys) do
+                    if type(map.enabled) == "function" and not map.enabled() then
+                        goto continue
+                    end
+                    vim.keymap.set(
+                        map.mode or "n",
+                        map[1],
+                        map[2],
+                        vim.tbl_extend("force", { silent = true, desc = map.desc or "" }, extra_opts or {})
+                    )
+                    ::continue::
+                end
+            end
+
             vim.api.nvim_create_autocmd("LspAttach", {
                 group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
                 callback = function(event)
@@ -271,17 +321,19 @@ return {
                         return
                     end
 
+                    -- apply global keys buffer-locally on each attach
+                    if opts.servers["*"] and opts.servers["*"].keys then
+                        apply_keys(opts.servers["*"].keys, { buffer = event.buf })
+                    end
+
                     local server = opts.servers[map_client_name(client.name)]
                     if server == nil then
-                        vim.notify("No configuration found for " .. client.name, vim.log.levels.WARN)
                         return
                     end
 
                     -- server specific keymaps
                     if server.keys and type(server.keys) == "table" then
-                        for _, map in ipairs(server.keys) do
-                            vim.keymap.set(map.mode or "n", map[1], map[2], { silent = true, desc = map.desc or "" })
-                        end
+                        apply_keys(server.keys, { buffer = event.buf })
                     end
 
                     if type(server.on_attach) == "function" then
@@ -335,13 +387,6 @@ return {
 
             if opts.servers["*"] then
                 vim.lsp.config("*", opts.servers["*"])
-                -- global keymaps
-                local keys = opts.servers["*"].keys
-                if keys and type(keys) == "table" then
-                    for _, map in ipairs(keys) do
-                        vim.keymap.set(map.mode or "n", map[1], map[2], { silent = true, desc = map.desc or "" })
-                    end
-                end
             end
 
             local configure = function(server)

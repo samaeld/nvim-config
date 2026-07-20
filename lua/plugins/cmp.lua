@@ -56,7 +56,6 @@ return {
                 menu = {
                     border = "rounded",
                     draw = {
-                        treesitter = { "lsp" },
                         columns = { { "kind_icon" }, { "label", gap = 1 } },
                         components = {
                             label = {
@@ -72,7 +71,7 @@ return {
                 },
                 documentation = {
                     auto_show = true,
-                    auto_show_delay_ms = 200,
+                    auto_show_delay_ms = 500,
                 },
                 ghost_text = {
                     enabled = false,
@@ -81,6 +80,9 @@ return {
             sources = {
                 default = { "lazydev", "lsp", "path", "snippets", "buffer", "codeium" },
                 providers = {
+                    buffer = {
+                        min_keyword_length = 3,
+                    },
                     codeium = {
                         name = "codeium",
                         module = "blink.compat.source",

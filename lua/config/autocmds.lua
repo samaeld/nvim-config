@@ -98,3 +98,18 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.keymap.set("n", "gd", cmake_goto_file, { buffer = event.buf, desc = "Goto Definition (cmake)" })
     end,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "cmd", "msg", "dialog", "pager" },
+    callback = function(event)
+        local ui2 = require("vim._core.ui2")
+        local win = ui2.wins and ui2.wins[event.match]
+        if win and vim.api.nvim_win_is_valid(win) then
+            vim.api.nvim_set_option_value(
+                "winhighlight",
+                "Normal:NormalFloat,FloatBorder:FloatBorder",
+                { scope = "local", win = win }
+            )
+        end
+    end,
+})

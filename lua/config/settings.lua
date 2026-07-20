@@ -51,12 +51,11 @@ vim.opt.laststatus = 3
 
 local default_diagnostic_config = {
     signs = {
-        active = true,
-        values = {
-            { name = "DiagnosticSignError", text = "" },
-            { name = "DiagnosticSignWarn", text = "" },
-            { name = "DiagnosticSignHint", text = "󰌶" },
-            { name = "DiagnosticSignInfo", text = "" },
+        text = {
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.HINT] = "󰌶",
+            [vim.diagnostic.severity.INFO] = "",
         },
     },
     virtual_text = true,
@@ -74,4 +73,25 @@ local default_diagnostic_config = {
 }
 
 vim.diagnostic.config(default_diagnostic_config)
-vim.lsp.inlay_hint.enable(true)
+
+vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
+vim.opt.cmdheight = 0
+
+require("vim._core.ui2").enable({
+    msg = {
+        cmd = { height = 0.4 },
+        dialog = { height = 0.4 },
+        msg = { height = 0.35, timeout = 3000 },
+        targets = {
+            list_cmd = "pager",
+            shell_cmd = "msg",
+            shell_out = "msg",
+            shell_err = "msg",
+            shell_ret = "msg",
+            verbose = "msg",
+            progress = "msg",
+            lua_print = "msg",
+        },
+    },
+})

@@ -2,7 +2,7 @@ return {
     {
         "RRethy/vim-illuminate",
         config = function()
-            require('illuminate').configure({
+            require("illuminate").configure({
                 -- providers: provider used to get references in the buffer, ordered by priority
                 providers = {
                     "lsp",
@@ -10,7 +10,7 @@ return {
                     "regex",
                 },
                 -- delay: delay in milliseconds
-                delay = 120,
+                delay = 300,
                 -- filetype_overrides: filetype specific overrides.
                 -- The keys are strings to represent the filetype while the values are tables that
                 -- supports the same keys passed to .configure except for filetypes_denylist and filetypes_allowlist
@@ -44,7 +44,6 @@ return {
                 under_cursor = true,
             })
         end,
-        event = "User FileOpened",
-        lazy = false,
+        event = "BufReadPost",
     },
 }

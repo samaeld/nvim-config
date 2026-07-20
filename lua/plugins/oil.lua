@@ -40,6 +40,13 @@ return {
         "barrettruth/canola.nvim",
         dependencies = { "nvim-tree/nvim-web-devicons" },
         config = function()
+            local git_status = new_git_status()
+            vim.api.nvim_create_autocmd("User", {
+                pattern = "OilEnter",
+                callback = function()
+                    git_status = new_git_status()
+                end,
+            })
             require("oil").setup({
                 default_file_explorer = true,
                 delete_to_trash = true,
@@ -49,7 +56,6 @@ return {
                         return name == ".git"
                     end,
                     is_hidden_file = function(name, bufnr)
-                        local git_status = new_git_status()
                         local dir = require("oil").get_current_dir(bufnr)
                         local is_dotfile = vim.startswith(name, ".") and name ~= ".."
                         if not dir then
@@ -95,10 +101,6 @@ return {
             "barrettruth/canola.nvim",
         },
         config = true,
-    },
-    {
-        "benomahony/oil-git.nvim",
-        dependencies = { "barrettruth/canola.nvim" },
     },
     {
         "JezerM/oil-lsp-diagnostics.nvim",
