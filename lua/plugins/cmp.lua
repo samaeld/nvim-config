@@ -42,6 +42,11 @@ return {
                 use_nvim_cmp_as_default = true,
             },
             completion = {
+                trigger = {
+                    prefetch_on_insert = true,
+                    show_on_backspace = true,
+                    show_on_backspace_in_keyword = true,
+                },
                 list = {
                     selection = {
                         auto_insert = true,
@@ -71,7 +76,7 @@ return {
                 },
                 documentation = {
                     auto_show = true,
-                    auto_show_delay_ms = 500,
+                    auto_show_delay_ms = 100,
                 },
                 ghost_text = {
                     enabled = false,
@@ -80,6 +85,9 @@ return {
             sources = {
                 default = { "lazydev", "lsp", "path", "snippets", "buffer", "codeium" },
                 providers = {
+                    lsp = {
+                        timeout_ms = 200,
+                    },
                     buffer = {
                         min_keyword_length = 3,
                     },
