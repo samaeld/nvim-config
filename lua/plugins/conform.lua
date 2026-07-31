@@ -39,7 +39,10 @@ local function webkit_format_args()
             .. "SpaceAfterTemplateKeyword: false, "
             .. "SpaceBeforeCpp11BracedList: false, "
             .. "PenaltyReturnTypeOnItsOwnLine: 999, "
-            .. "SeparateDefinitionBlocks: Always}",
+            .. "SeparateDefinitionBlocks: Always, "
+            .. "Standard: c++20, "
+            .. "QualifierAlignment: Left, "
+            .. "InsertNewlineAtEOF: true}",
     }
 end
 
@@ -56,6 +59,7 @@ local function llvm_format_args()
             .. "BinPackArguments: false, "
             .. "BinPackParameters: false, "
             .. "IndentWidth: 4, "
+            .. "AccessModifierOffset: -4, "
             .. "ColumnLimit: 100, "
             .. "FixNamespaceComments: true, "
             .. "IncludeBlocks: Regroup, "
@@ -70,6 +74,47 @@ local function llvm_format_args()
             .. "SpaceAfterTemplateKeyword: false, "
             .. "SpaceBeforeCpp11BracedList: false, "
             .. "PenaltyReturnTypeOnItsOwnLine: 999, "
+            .. "Standard: c++20, "
+            .. "QualifierAlignment: Left, "
+            .. "InsertNewlineAtEOF: true, "
+            .. "SeparateDefinitionBlocks: Always}",
+    }
+end
+
+local function google_format_args()
+    if find_clang_format_up(vim.fn.getcwd()) then
+        vim.notify("clang-format found in " .. vim.fn.getcwd() .. "/.clang-format")
+        return { "-assume-filename", "$FILENAME", "--style=file" }
+    end
+
+    return {
+        "-assume-filename",
+        "$FILENAME",
+        "--style={BasedOnStyle: Google, "
+            .. "AlignAfterOpenBracket: AlwaysBreak, "
+            .. "AllowShortFunctionsOnASingleLine: None, "
+            .. "AlwaysBreakTemplateDeclarations: Yes, "
+            .. "BinPackArguments: false, "
+            .. "BinPackParameters: false, "
+            .. "IndentWidth: 4, "
+            .. "AccessModifierOffset: -4, "
+            .. "ColumnLimit: 100, "
+            .. "FixNamespaceComments: true, "
+            .. "IncludeBlocks: Regroup, "
+            .. "IncludeCategories: ["
+            .. "{Regex: '^\".+\\.(h|hh|hpp|hxx)\"$', Priority: 1}, "
+            .. "{Regex: '^<.+\\.(h|hh|hpp|hxx)>$', Priority: 2}, "
+            .. "{Regex: '^<[^.]+>$', Priority: 3}"
+            .. "], "
+            .. 'IncludeIsMainRegex: "(_unittest)?$", '
+            .. "Cpp11BracedListStyle: true, "
+            .. "NamespaceIndentation: None, "
+            .. "SpaceAfterTemplateKeyword: false, "
+            .. "SpaceBeforeCpp11BracedList: false, "
+            .. "PenaltyReturnTypeOnItsOwnLine: 999, "
+            .. "Standard: c++20, "
+            .. "QualifierAlignment: Left, "
+            .. "InsertNewlineAtEOF: true, "
             .. "SeparateDefinitionBlocks: Always}",
     }
 end
@@ -121,7 +166,7 @@ return {
                 formatters = {
                     cpp_format = {
                         command = "clang-format",
-                        args = webkit_format_args(),
+                        args = google_format_args(),
                     },
                     c_format = {
                         command = "clang-format",

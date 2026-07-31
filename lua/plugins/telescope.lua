@@ -122,6 +122,7 @@ return {
                     }),
                     file_ignore_patterns = {
                         ".git/",
+                        "tests/",
                     },
                     layout_strategy = "flex",
                     sorting_strategy = "ascending",
